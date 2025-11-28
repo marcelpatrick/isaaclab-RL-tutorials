@@ -17,3 +17,47 @@
 # Standard Functions
 - Standard functions that appear in most IsaacLab code scripts
 
+## 0. Argparser and AllLaunch()
+- Define the simulator launcher function and which custom arguments it can receive to customize different ways to launch the simulation.
+
+## 0. Import Libraries
+- Import libraries for assets, scene, sim, utils(config class)
+
+## 1. Scene Design and Configuration: CartpoleSceneCfg()
+- Configures:
+  - Ground
+  - Light
+  - Assets (Cartpole)
+
+## 2. Run_simulator()
+
+## 3. Main()
+
+
+# tutorials\02_scene: create_scene.py
+
+## 0. Argparser and AllLaunch()
+
+```py
+"""Launch Isaac Sim Simulator first."""
+
+
+import argparse
+
+from isaaclab.app import AppLauncher
+
+# add argparse arguments
+parser = argparse.ArgumentParser(description="Tutorial on using the interactive scene interface.")
+parser.add_argument("--num_envs", type=int, default=2, help="Number of environments to spawn.")
+# append AppLauncher cli args
+AppLauncher.add_app_launcher_args(parser)
+# parse the arguments
+args_cli = parser.parse_args()
+
+# launch omniverse app
+app_launcher = AppLauncher(args_cli)
+simulation_app = app_launcher.app
+```
+
+
+
