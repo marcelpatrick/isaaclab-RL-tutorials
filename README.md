@@ -86,7 +86,7 @@ from isaaclab_assets import CARTPOLE_CFG  # isort:skip
 ## 1. Scene Design and Configuration: CartpoleSceneCfg()
 
 - Objects (entities) configuration
-- Define Ground and Lights
+- Configures Ground, Lights and the Cartpolt
   - 1. AssetBaseCfg(): Creates a Python config object
   - 2. Where to create?: prim_path="/World/defaultGroundPlane": Defines where in the folder tree to store (in-memory) the instance to be created, and passes it to the function's "path" parameter. 
   - 3. What to create?: spawn=sim_utils.GroundPlaneCfg(): Uses GrounPlaneCgf(), a predefined Python config class that comes with Isaac Lab and contains default parameters for generating a ground plane when spawned, and passes it to the function's "spawn" parameter.
@@ -107,6 +107,9 @@ class CartpoleSceneCfg(InteractiveSceneCfg):
 ```
 
 - Set the Cartpole by using the CARTPOLE_CFG configuration object.
+- "Create a variable 'cartpole" of type ArticulationCfg (annotation), assign to it a configuration copied from the default config "
+- Doing ``cartpole: ArticulationCfg =...`` is like doing ``my_int_number: int = 3``
+- The annotation ``my_int_number: int = 3``prevents someone from assigning a value to that variable of the wrong type. - The IDE would show a warning while typing.  
 ```py
     # articulation
     cartpole: ArticulationCfg = CARTPOLE_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
@@ -218,3 +221,336 @@ if __name__ == "__main__":
     # close sim app
     simulation_app.close()
 ```
+
+# Manager Workflow: 
+
+## CONFIGURATION SETUP: cartpole_env_cfg.py
+- C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\manager_based\classic\cartpole\cartpole_env_cfg.py
+
+
+## 0.Import Libraries
+
+```py
+import math
+
+import isaaclab.sim as sim_utils
+from isaaclab.assets import ArticulationCfg, AssetBaseCfg
+from isaaclab.envs import ManagerBasedRLEnvCfg
+from isaaclab.managers import EventTermCfg as EventTerm
+from isaaclab.managers import ObservationGroupCfg as ObsGroup
+from isaaclab.managers import ObservationTermCfg as ObsTerm
+from isaaclab.managers import RewardTermCfg as RewTerm
+from isaaclab.managers import SceneEntityCfg
+from isaaclab.managers import TerminationTermCfg as DoneTerm
+from isaaclab.scene import InteractiveSceneCfg
+from isaaclab.utils import configclass
+
+import isaaclab_tasks.manager_based.classic.cartpole.mdp as mdp
+
+##
+# Pre-defined configs
+##
+from isaaclab_assets.robots.cartpole import CARTPOLE_CFG  # isort:skip
+```
+
+## 1. Scene Design and Configuration: CartpoleSceneCfg()
+
+- Objects (entities) configuration
+- Configures Ground, Lights and the Cartpolt
+- **CARTPOLE_CFG**: the instance of the predefined cart-pole configuration object (``from isaaclab_assets.robots.cartpole import CARTPOLE_CFG``) that defines the robot's basic attributes (joints, links, limits, physics).
+
+```
+##
+# Scene definition
+##
+
+
+@configclass
+class CartpoleSceneCfg(InteractiveSceneCfg):
+    """Configuration for a cart-pole scene."""
+
+    # ground plane
+    ground = AssetBaseCfg(
+        prim_path="/World/ground",
+        spawn=sim_utils.GroundPlaneCfg(size=(100.0, 100.0)),
+    )
+
+    # cartpole
+    # Create a variable "robot" of type ArticulationCfg (annotation), assign to it a configuration copied from the default config template "CARTPOLE_CFG", and save it to this "path" whenever it gets rendered. 
+    robot: ArticulationCfg = CARTPOLE_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+
+    # lights
+    dome_light = AssetBaseCfg(
+        prim_path="/World/DomeLight",
+        spawn=sim_utils.DomeLightCfg(color=(0.9, 0.9, 0.9), intensity=500.0),
+    )
+```
+
+## 2. Markov Decision Process (MDP) Settings / Reward Functions 
+
+### 2.1. Action Configuration Class
+- Defines **Action definitions** which assign policy’s output values to real robot commands into physical units.
+- Specifies how the raw RL action output (a number from the policy) is converted into a physical force/effort applied to the chosen joint. eg: So the policy outputs, for example, 0.3, and the action definition turns that into: 0.3 × scale (100) = 30 units of joint effort applied to the slider_to_cart joint
+
+```py
+@configclass
+class ActionsCfg:
+    """Action specifications for the MDP."""
+
+    # action definition: “The agent controls the cart by applying effort/force to the slider_to_cart joint of the robot,” scaled by 100 so the RL policy’s output maps to meaningful physical forces
+    joint_effort = mdp.JointEffortActionCfg(asset_name="robot", joint_names=["slider_to_cart"], scale=100.0)
+```
+
+- ### 2.2: Observations Configuration Class
+- Inputs into the deep network (X)
+- It defines what information the robot’s brain (the RL policy) gets each step.
+- “Collect the robot’s joint positions and velocities, package them into one vector, don’t add noise, and feed that to the policy every step.” So the RL agent learns using only those two signals about the cart-pole’s state: joint position ``joint_pos_rel``, ``joint_vel_rel``
+  
+```py
+@configclass
+class ObservationsCfg:
+    """Observation specifications for the MDP."""
+
+    @configclass
+    class PolicyCfg(ObsGroup):
+        """Observations for policy group."""
+
+        # observation terms (order preserved)
+        # observes the relative joint position of all joints
+        # "func" method searches through joints IDs. 
+        joint_pos_rel = ObsTerm(func=mdp.joint_pos_rel)
+        joint_vel_rel = ObsTerm(func=mdp.joint_vel_rel)
+
+        def __post_init__(self) -> None:
+            self.enable_corruption = False
+            self.concatenate_terms = True
+
+    # observation groups
+    policy: PolicyCfg = PolicyCfg()
+```
+
+### 2.3. Event Configuration Class
+- It defines how the robot resets at the start of each episode.
+- Each EventTerm randomizes the cart and pole joint positions and velocities within given ranges, ensuring varied starting states so the RL agent learns a more robust policy.
+
+```py
+@configclass
+class EventCfg:
+    """Configuration for events."""
+
+    # reset
+    reset_cart_position = EventTerm(
+        func=mdp.reset_joints_by_offset,
+        mode="reset",
+        params={
+            "asset_cfg": SceneEntityCfg("robot", joint_names=["slider_to_cart"]),
+            "position_range": (-1.0, 1.0),
+            "velocity_range": (-0.5, 0.5),
+        },
+    )
+
+    reset_pole_position = EventTerm(
+        func=mdp.reset_joints_by_offset,
+        mode="reset",
+        params={
+            "asset_cfg": SceneEntityCfg("robot", joint_names=["cart_to_pole"]),
+            "position_range": (-0.25 * math.pi, 0.25 * math.pi),
+            "velocity_range": (-0.25 * math.pi, 0.25 * math.pi),
+        },
+    )
+```
+
+### 2.4. Reward Configuration Class
+- It defines how the agent is rewarded or penalized.
+- The code gives positive reward for staying alive, penalizes failure, penalizes the pole being off-upright, and adds small penalties for cart and pole motion.
+- Together, these incentives teach the agent to balance the pole steadily.
+
+```py
+@configclass
+class RewardsCfg:
+    """Reward terms for the MDP."""
+
+    # is_alive and is_terminated are predefined helper functions inside the isaaclab_tasks.manager_based.classic.cartpole.mdp module.
+    # They are not generic Python or Isaac Lab functions; they are task-specific MDP utilities provided by the cartpole MDP implementation to detect success or failure conditions.
+
+    # POSITIVE REINFORCEMENT: REWARD: weight=1.0
+    # (1) Constant running reward
+    alive = RewTerm(func=mdp.is_alive, weight=1.0)
+
+    # NEGATIVE REINFORCEMENT: REWARD: weight=-2.0
+    # (2) Failure penalty
+    terminating = RewTerm(func=mdp.is_terminated, weight=-2.0)
+
+    # NEGATIVE REINFORCEMENT: REWARD: weight=-1.0
+    # (3) Primary task: keep pole upright
+    # Punishes whenever the pole has position deviations away from the upright position
+    pole_pos = RewTerm(
+        func=mdp.joint_pos_target_l2,
+        weight=-1.0,
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=["cart_to_pole"]), "target": 0.0},
+    )
+
+    # NEGATIVE REINFORCEMENT: REWARD: weight=-0.01
+    # (4) Shaping tasks: lower cart velocity
+    # Punishes if the robot speeds too much
+    cart_vel = RewTerm(
+        func=mdp.joint_vel_l1,
+        weight=-0.01,
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=["slider_to_cart"])},
+    )
+
+    # NEGATIVE REINFORCEMENT: REWARD: weight=-0.005
+    # (5) Shaping tasks: lower pole angular velocity
+    # Punishes whenever the pole acquires angular velocities which are too high
+    pole_vel = RewTerm(
+        func=mdp.joint_vel_l1,
+        weight=-0.005,
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=["cart_to_pole"])},
+    )
+```
+
+### 2.5. Termination Class Configuration
+- It defines when an episode should end.
+- One rule ends the episode after a time limit; the other ends it if the cart moves outside the allowed range.
+- These termination conditions tell the RL system when to reset and start a new episode.
+- **Episode**:
+  - An Episode is a sequence of interactions between the agent and the environment. When the agent finishes its "mission" the key sequence of actions it was predefined to perform in order to learn.
+  - After each Episode, the accumulated rewards are calculated and the result is used to train the algorithm -> back-propagation. 
+
+<img width="1753" height="589" alt="image" src="https://github.com/user-attachments/assets/434ddbb8-6f89-4dd1-b176-87651410e2fa" />
+
+## 3. Carpole Environment Configuration Class
+
+- It bundles all components of the cart-pole RL environment into one configuration by calling all other configuration classes defined above: scene setup, observations, actions, events, rewards, and termination rules.
+- It also sets global parameters like episode length, step rate, rendering interval, and viewer position.
+- This final config tells Isaac Lab how to build and run the full RL environment.
+
+```
+##
+# Environment configuration
+##
+
+
+@configclass
+class CartpoleEnvCfg(ManagerBasedRLEnvCfg):
+    """Configuration for the cartpole environment."""
+
+    # Scene settings
+    scene: CartpoleSceneCfg = CartpoleSceneCfg(num_envs=4096, env_spacing=4.0, clone_in_fabric=True)
+    # Basic settings
+    observations: ObservationsCfg = ObservationsCfg()
+    actions: ActionsCfg = ActionsCfg()
+    events: EventCfg = EventCfg()
+    # MDP settings
+    rewards: RewardsCfg = RewardsCfg()
+    terminations: TerminationsCfg = TerminationsCfg()
+
+    # Post initialization
+    def __post_init__(self) -> None:
+        """Post initialization."""
+        # general settings
+        self.decimation = 2
+        self.episode_length_s = 5
+        # viewer settings
+        self.viewer.eye = (8.0, 0.0, 5.0)
+        # simulation settings
+        self.sim.dt = 1 / 120
+        self.sim.render_interval = self.decimation
+```
+
+# RUNNING THE SCRIPT: run_cartpole_rl_env.py
+- ``C:\Users\[YOUR USER]\isaaclab\scripts\tutorials\03_envs\run_cartpole_rl_env.py``
+
+## 0. Argparser and AppLauncher
+```py
+"""Launch Isaac Sim Simulator first."""
+
+import argparse
+
+from isaaclab.app import AppLauncher
+
+# add argparse arguments
+parser = argparse.ArgumentParser(description="Tutorial on running the cartpole RL environment.")
+parser.add_argument("--num_envs", type=int, default=16, help="Number of environments to spawn.")
+
+# append AppLauncher cli args
+AppLauncher.add_app_launcher_args(parser)
+# parse the arguments
+args_cli = parser.parse_args()
+
+# launch omniverse app
+app_launcher = AppLauncher(args_cli)
+simulation_app = app_launcher.app
+
+"""Rest everything follows."""
+
+import torch
+
+from isaaclab.envs import ManagerBasedRLEnv
+```
+
+- Imports the configuration class defined above in ``cartpole_env_cfg.py``
+```py
+from isaaclab_tasks.manager_based.classic.cartpole.cartpole_env_cfg import CartpoleEnvCfg
+```
+
+## 1. Main
+- Runs the simulation loop
+
+- Creates a Manager-Based Reinforcement Learning Environment ``ManagerBasedRLEnv()`` with the configurations previously defined ``CartpoleEnvCfg()``
+```py
+def main():
+    """Main function."""
+    # create environment configuration
+    env_cfg = CartpoleEnvCfg()
+    env_cfg.scene.num_envs = args_cli.num_envs
+    env_cfg.sim.device = args_cli.device
+    # setup RL environment
+    env = ManagerBasedRLEnv(cfg=env_cfg)
+```
+- Run the simulation loop
+```
+    # simulate physics
+    count = 0
+    while simulation_app.is_running():
+        with torch.inference_mode():
+            # reset
+            if count % 300 == 0:
+                count = 0
+                env.reset()
+                print("-" * 80)
+                print("[INFO]: Resetting environment...")
+```
+- Apply random forces
+```
+            # sample random actions
+            joint_efforts = torch.randn_like(env.action_manager.action)
+```
+- Fetch training observations in every step to be used to feedback into the model for learning
+```
+            # step the environment
+            obs, rew, terminated, truncated, info = env.step(joint_efforts)
+            # print current orientation of pole
+            print("[Env 0]: Pole joint: ", obs["policy"][0][1].item())
+            # update counter
+            count += 1
+
+    # close the environment
+    env.close()
+
+
+if __name__ == "__main__":
+    # run the main function
+    main()
+    # close sim app
+    simulation_app.close()
+```
+
+
+
+
+
+
+
+
+
