@@ -197,7 +197,7 @@ def main():
 - Instantiates a scene configuration class
 - CartpoleSceneCfg() Class creates a scene recipe. It includes how many environments to make and how far apart they should be, plus the entities defined in the class definition (ground, light, cartpole). It's passed into the ``scene_cfg``, a config/data object describing the scene - like a json flat file. 
 - InteractiveScene(scene_cfg) uses that recipe to actually build the scene in memory: it creates the USD prims, registers the robot, and sets up all env copies. Stores it into the ``scene``, an InteractiveScene object that contains the actual USD prims, entities, and environment clones - the actual constructed scene. 
-```
+```py
     # Set main camera
     sim.set_camera_view([2.5, 0.0, 4.0], [0.0, 0.0, 2.0])
     # Design scene
@@ -206,7 +206,7 @@ def main():
 ```
 - Reset and run the simulation
 - Calls run_simulator() passing the camera and scene object as params 
-```
+```py
     # Play the simulator
     sim.reset()
     # Now we are ready!
@@ -259,7 +259,7 @@ from isaaclab_assets.robots.cartpole import CARTPOLE_CFG  # isort:skip
 - Configures Ground, Lights and the Cartpolt
 - **CARTPOLE_CFG**: the instance of the predefined cart-pole configuration object (``from isaaclab_assets.robots.cartpole import CARTPOLE_CFG``) that defines the robot's basic attributes (joints, links, limits, physics).
 
-```
+```py
 ##
 # Scene definition
 ##
@@ -425,7 +425,7 @@ class RewardsCfg:
 - It also sets global parameters like episode length, step rate, rendering interval, and viewer position.
 - This final config tells Isaac Lab how to build and run the full RL environment.
 
-```
+```py
 ##
 # Environment configuration
 ##
@@ -509,7 +509,7 @@ def main():
     env = ManagerBasedRLEnv(cfg=env_cfg)
 ```
 - Run the simulation loop
-```
+```py
     # simulate physics
     count = 0
     while simulation_app.is_running():
@@ -522,12 +522,12 @@ def main():
                 print("[INFO]: Resetting environment...")
 ```
 - Apply random forces
-```
+```py
             # sample random actions
             joint_efforts = torch.randn_like(env.action_manager.action)
 ```
 - Fetch training observations in every step to be used to feedback into the model for learning
-```
+```py
             # step the environment
             obs, rew, terminated, truncated, info = env.step(joint_efforts)
             # print current orientation of pole
