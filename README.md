@@ -458,7 +458,7 @@ class CartpoleEnvCfg(ManagerBasedRLEnvCfg):
         self.sim.render_interval = self.decimation
 ```
 
-# RUNNING THE SCRIPT: run_cartpole_rl_env.py
+## RUNNING THE SCRIPT: run_cartpole_rl_env.py
 - ``C:\Users\[YOUR USER]\isaaclab\scripts\tutorials\03_envs\run_cartpole_rl_env.py``
 
 ## 0. Argparser and AppLauncher
