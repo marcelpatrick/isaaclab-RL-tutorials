@@ -37,7 +37,7 @@
 
 ## 3. Main()
 - Builds the scene according to the config class and stores it into a scene object
-- Calls rum_simulator() passing the scene config object as a param - when the director calls "action", when all pieces as in place, and the scene actually runs. 
+- Calls run_simulator() passing the scene_cfg() object as a param - that's when the director calls "action", when all pieces are in place, and the scene actually runs. 
 
 # tutorials\02_scene: create_scene.py
 
@@ -222,7 +222,7 @@ if __name__ == "__main__":
     simulation_app.close()
 ```
 
-# Manager Workflow: 
+# MANAGER WORKFLOW: 
 
 ## CONFIGURATION SETUP: cartpole_env_cfg.py
 - C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\manager_based\classic\cartpole\cartpole_env_cfg.py
@@ -546,7 +546,9 @@ if __name__ == "__main__":
     simulation_app.close()
 ```
 
+# DIRECT WORKFLOW:
 
+# tutorials\
 
 
 
