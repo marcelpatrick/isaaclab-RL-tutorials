@@ -29,7 +29,7 @@
 - Configures these entities:
   - Ground
   - Light
-  - Assets (Cartpole)
+  - Objects (eg. Robots, Cartpole etc)
 
 ## 2. Run_simulator()
 - Defines how the simulation will run (simulation loop). passing into it the entities defined by CartpoleSceneCfg()
