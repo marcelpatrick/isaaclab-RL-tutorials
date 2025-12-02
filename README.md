@@ -23,7 +23,7 @@
 ## 0. Import Libraries
 - Import libraries for assets, scene, sim, utils(config class)
 
-## 1. Scene Design and Configuration: CartpoleSceneCfg() Class
+## 1. Scene Design and Configuration: SceneCfg() Class
 - Creates a scene configuration class
 - Defines which entities (objects) that will be part of the scene and which configs they will hold - like casting actors for a scene.
 - Configures these entities:
