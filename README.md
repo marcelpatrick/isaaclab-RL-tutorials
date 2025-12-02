@@ -32,7 +32,7 @@
   - Objects (eg. Robots, Cartpole etc)
 
 ## 2. Run_simulator()
-- Defines how the simulation will run (simulation loop). passing into it the entities defined by CartpoleSceneCfg()
+- Defines how the simulation will run (simulation loop). passing into it the entities defined by SceneCfg()
 - Like the scene rehearsal, scenario building, set construction etc. 
 
 ## 3. Main()
