@@ -1,6 +1,7 @@
 # isaaclab-RL-tutorials
 
-- This readme follows the RL tutorials by LycheeAI: https://lycheeai-hub.com/isaac-lab/intermediate-videos and adds extra information to them. 
+- This readme provides a more structured and beginner-friendly walkthrough of official tutorials by Nvidia and other sources. 
+- It follows the RL tutorials by LycheeAI: https://lycheeai-hub.com/isaac-lab/intermediate-videos and adds extra information to them. 
 - It uses files from the IsaacLab **GitHub Repo**: https://github.com/isaac-sim/IsaacLab 
 - It goes through the main Python files in this IsaacLab GitHub repo and explains what they do.
 - It runs scripts from inside: ``C:\Users\[YOUR USER]\IsaacLab\scripts\tutorials\02_scene``, or wherever you have installed the github project.
