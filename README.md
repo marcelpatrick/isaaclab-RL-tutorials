@@ -564,6 +564,8 @@ if __name__ == "__main__":
 
 # DIRECT WORKFLOW:
 
+- Defines all standard functions (observation, rewards, termination) inside the same script ``cartpole_env.py``
+
 ## cartpole_env.py
 - Path: ``C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\direct\cartpole\cartpole_env.py``
 
