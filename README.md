@@ -234,7 +234,9 @@ if __name__ == "__main__":
 ```py
 obs, rew, terminated, truncated, info = env.step(joint_efforts)
 ```
-- Benefits: This allows for modularity and practicality when multiple developers are working on the same code. 
+- Benefits: 
+  - Modularity: easy to remove the reward function or observation type and plug in a different to test how the model behaves. Plug and play different standard functions as standalone components
+  - Encapsulation: safer, easier debugging, allows diff developers to work on the code at the same time. 
 
 
 ## CONFIGURATION SETUP: cartpole_env_cfg.py
