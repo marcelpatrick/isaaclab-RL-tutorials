@@ -224,6 +224,17 @@ if __name__ == "__main__":
 ```
 
 # MANAGER WORKFLOW: 
+- In the manager approach, standard functions (SceneCfg(), RewardsCfg(), ObservationsCfg(), Event() etc) are each defined inside their own separate classes, inside the ``cartpole_env_cfg.py`` file.
+- Inside a different file ``run_cartpole_rl_env.py`` the class cartpole_env_cfg.py is imported and an object of this class is instantiated in main().
+- Then, an env object is instantiated inheriting from ``ManagerBasedRLEnv()`` that takes the cfg object as param.
+  - **ManagerBasedRLEnvironment** is a standard class provided by default as part of the Isaac Lab library.
+  - It takes an environment configuration which contains all the defined aspects of the Markov Decision Process (MDP) such as actions, observations, rewards, and terminations.
+  - In every step, it applies actions to the environment ``joint_efforts`` (**INPUTS**) and collects observations (new state after the joint_efforts (actions) have been applied), rewards, terminations etc (**OUTPUTS**) 
+```py
+obs, rew, terminated, truncated, info = env.step(joint_efforts)
+```
+- Benefits: This allows for modularity and practicality when multiple developers are working on the same code. 
+
 
 ## CONFIGURATION SETUP: cartpole_env_cfg.py
 - C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\manager_based\classic\cartpole\cartpole_env_cfg.py
@@ -527,9 +538,10 @@ def main():
             # sample random actions
             joint_efforts = torch.randn_like(env.action_manager.action)
 ```
-- Fetch training observations in every step to be used to feedback into the model for learning
+- Fetch training observations, rewards etc ``obs, rew, terminated, truncated, info`` in every step to be used as feedback into the model for learning
 ```py
             # step the environment
+            # COLLECTS OUTPUT                     = TAKES INPUT
             obs, rew, terminated, truncated, info = env.step(joint_efforts)
             # print current orientation of pole
             print("[Env 0]: Pole joint: ", obs["policy"][0][1].item())
