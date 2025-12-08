@@ -228,7 +228,8 @@ if __name__ == "__main__":
 - Inside a different file ``run_cartpole_rl_env.py`` the class cartpole_env_cfg.py is imported and an object of this class is instantiated in main().
 - Then, an env object is instantiated inheriting from ``ManagerBasedRLEnv()`` that takes the cfg object as param.
   - **ManagerBasedRLEnvironment** is a standard class provided by default as part of the Isaac Lab library.
-  - It takes an environment configuration which contains all the defined aspects of the Markov Decision Process (MDP) such as actions, observations, rewards, and terminations.
+  - It takes an environment configuration which contains all the defined aspects of the Markov Decision Process (MDP) such as actions, observations, rewards, and terminations. ``env = ManagerBasedRLEnv(cfg=env_cfg)``
+- The env object is passed inside a loop to, in every step, take the input actions and return the outputs
   - In every step, it applies actions to the environment ``joint_efforts`` (**INPUTS**) and collects observations (new state after the joint_efforts (actions) have been applied), rewards, terminations etc (**OUTPUTS**) 
 ```py
 obs, rew, terminated, truncated, info = env.step(joint_efforts)
