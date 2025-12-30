@@ -475,7 +475,7 @@ class CartpoleEnvCfg(ManagerBasedRLEnvCfg):
         self.sim.render_interval = self.decimation
 ```
 
-## RUNNING THE SCRIPT: run_cartpole_rl_env.py
+# RUNNING THE SCRIPT: run_cartpole_rl_env.py
 - ``C:\Users\[YOUR USER]\isaaclab\scripts\tutorials\03_envs\run_cartpole_rl_env.py``
 
 ## 0. Argparser and AppLauncher
@@ -514,7 +514,7 @@ from isaaclab_tasks.manager_based.classic.cartpole.cartpole_env_cfg import Cartp
 ## 1. Main
 - Runs the simulation loop
 
-- Creates a Manager-Based Reinforcement Learning Environment ``ManagerBasedRLEnv()`` with the configurations previously defined ``CartpoleEnvCfg()``
+- Creates a Manager-Based Reinforcement Learning Environment ``ManagerBasedRLEnv()`` with the configurations previously defined by the class ``class CartpoleEnvCfg(ManagerBasedRLEnvCfg):`` inside the previously configured file: ``C:\Users\myali\isaaclab\source\isaaclab_tasks\isaaclab_tasks\manager_based\classic\cartpole\cartpole_env_cfg.py``
 ```py
 def main():
     """Main function."""
