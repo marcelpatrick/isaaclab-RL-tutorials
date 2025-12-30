@@ -681,7 +681,7 @@ class CartpoleEnv(DirectRLEnv):
 ```
 
 ### 2.2: Define Markov Decision Process settings
-```
+```py
     # Prepare actions before physics step - scale action force
     def _pre_physics_step(self, actions: torch.Tensor) -> None:
         self.actions = self.action_scale * actions.clone()
