@@ -87,7 +87,7 @@ from isaaclab_assets import CARTPOLE_CFG  # isort:skip
 ## 1. Scene Design and Configuration: CartpoleSceneCfg()
 
 - Objects (entities) configuration
-- Configures Ground, Lights and the Cartpole
+- Configures Ground, Lights and the Cartpole: Create config files and save them in specific paths so they can later be used to spawn the primitives on the scenes.
   - 1. AssetBaseCfg(): Creates a Python config object
   - 2. Where to create?: prim_path="/World/defaultGroundPlane": Defines where in the folder tree to store (in-memory) the instance to be created, and passes it to the function's "path" parameter. 
   - 3. What to create?: spawn=sim_utils.GroundPlaneCfg(): Uses GrounPlaneCgf(), a predefined Python config class that comes with Isaac Lab and contains default parameters for generating a ground plane when spawned, and passes it to the function's "spawn" parameter.
