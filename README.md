@@ -818,9 +818,25 @@ class CartpoleEnv(DirectRLEnv):
         self.cartpole.write_joint_state_to_sim(joint_pos, joint_vel, None, env_ids)
 ```
 
-### 2.3: Define the function to compute rewards
+#### 2.2.1: Define the function to compute rewards
+
+- `compute_rewards()`: Core reward calculation function for the cartpole RL task.
+
+- Purpose: Computes a scalar reward signal that guides the AI to learn pole balancing. This is the "feedback" the agent receives after each action - higher rewards mean better behavior, teaching the AI what actions lead to successful balancing.
+
+- Takes current states from `_get_rewards()` to calculate reward. States is what defines whether the robot achieved its goal (generate positive reward) or not (generate negative reward). eg:
+
+| Scenario | `pole_pos` | `pole_vel` | `cart_vel` | `terminated` | Total Reward |
+|----------|------------|------------|------------|--------------|--------------|
+| Perfect balance | 0.0 | 0.0 | 0.0 | False | **+1.0** |
+| Slight tilt | 0.3 | 0.5 | 1.0 | False | **≈ +0.90** |
+| Falling over | 1.2 | 3.0 | 4.0 | False | **≈ -0.50** |
+| Episode ended | — | — | — | True | **-2.0** |
+
+- Why Separate Functions?: Enables fast parallel computation across 4096+ environments
 
 ```py
+
 @torch.jit.script
 def compute_rewards(
     rew_scale_alive: float,
