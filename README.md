@@ -630,7 +630,10 @@ class CartpoleEnvCfg(DirectRLEnvCfg):
     sim: SimulationCfg = SimulationCfg(dt=1 / 120, render_interval=decimation)
 
     # Define Robot's configuration (cartpole)
-    # robot
+    # This line configures the robot asset (cartpole) to be spawned in each parallel simulation environment.
+    # uses CARTPOLE_CFG: A pre-defined articulation configuration object (imported from isaaclab_assets.robots.cartpole) that contains all the physical properties, USD file path, and joint/actuator settings for the cartpole robot
+    # The path passed here defines where to save each robot instance
+    # "ArticulationCfg" is a type annotation indicating that the robot_cfg variable is of type "Articulation object", a predefined IsaacLab class
     robot_cfg: ArticulationCfg = CARTPOLE_CFG.replace(prim_path="/World/envs/env_.*/Robot")
     cart_dof_name = "slider_to_cart"
     pole_dof_name = "cart_to_pole"
