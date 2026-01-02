@@ -651,10 +651,15 @@ class CartpoleEnvCfg(DirectRLEnvCfg):
 
     # Define reward parameters
     # reward scales
+    # Bonus for each step the pole stays upright, encouraging survival.
     rew_scale_alive = 1.0
+    # Penalty when episode ends due to failure, discouraging falling over.
     rew_scale_terminated = -2.0
+    # Penalty for pole angle deviation from vertical, encouraging upright balance.
     rew_scale_pole_pos = -1.0
+    # Small penalty for cart velocity, encouraging smooth/minimal cart movement.
     rew_scale_cart_vel = -0.01
+    # Small penalty for pole angular velocity, encouraging stable non-swinging behavior.
     rew_scale_pole_vel = -0.005
 ```
 
