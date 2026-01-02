@@ -874,6 +874,7 @@ Video: https://www.youtube.com/watch?v=BSQEYj3Wm0Q&list=PLQQ577DOyRN_hY6OAoxBh8K
 
 ## Register Gym Environments: __init__.py
 - Environment Registry: C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\direct\cartpole\__init__.py
+- It tells the Gymnasium interface which env config class to import: `entry_point=f"{__name__}.cartpole_env:CartpoleEnv"`
 
 ```py
 gym.register(
@@ -895,12 +896,46 @@ gym.register(
 )
 ```
 
-## SKRL library
-- Uses the PPO algorithm:
-- PPO: config file: C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\direct\cartpole\agents\skrl_ppo_cfg.yaml
-
-## Understanding the Training Script:
+## Train Script: train.py
 - The training script with the SKRL framework: C:\Users\[YOUR USER]\isaaclab\scripts\reinforcement_learning\skrl\train.py
+
+This script is a **unified training entry point** for training reinforcement learning (RL) agents using the [skrl](https://skrl.readthedocs.io) library within the Isaac Lab framework. It's essentially a "launch script" that orchestrates the entire training pipeline for robot learning tasks.
+
+- It uses:
+**SKRL library**
+  - Uses the PPO algorithm:
+  - PPO: config file: C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\direct\cartpole\agents\skrl_ppo_cfg.yaml
+
+**Gymnasium** is a standardized API for reinforcement learning environments. It defines two core methods that every environment must implement: `reset()` to initialize an episode and `step(action)` to advance the simulation and return observations, rewards, and status. Because Isaac Lab environments follow this standard, they're compatible with any RL library that supports Gymnasium. Defines a standard "controller interface": every environment must have a reset() function (start a new simulation) and a step() function (take an action, see what happens)
+
+**Wrappers** are code layers that sit around an object to modify or adapt its interface without changing the original code. In this script, `SkrlVecEnvWrapper` translates Isaac Lab's environment interface into the format skrl expects.
+
+**Hydra** is a configuration management framework that loads settings from YAML files and allows command-line overrides (like --num_envs 4). It keeps hyperparameters and environment settings separate from code, making experiments reproducible and easy to modify.
+
+---
+
+### What It Does  
+
+1. **Parses Command-Line Arguments** — Accepts user inputs:
+
+2. **Launches Isaac Sim** — Uses `AppLauncher` to boot up the NVIDIA Isaac Sim physics simulator.
+
+3. **Configures the Environment** — Loads the environment configuration using Hydra, then overrides with CLI arguments.
+
+4. **Sets Up Logging** — Creates timestamped directories under `logs/skrl/` to store configs, metrics, checkpoints, and videos.
+
+5. **Creates the Training Environment** — Uses `gym.make()` to instantiate the environment, then wraps it for skrl compatibility.
+
+6. **Runs Training** — Uses skrl's `Runner` class to execute the RL training loop.
+
+7. **Cleans Up** — Closes the environment and simulation app when done.
+
+### Flow: 
+`train.py` → `import isaaclab_tasks` (triggers registration) → `gym.make("Isaac-Cartpole-Direct-v0")` (looks up registry) → `__init__.py` (contains `gym.register()`) → `cartpole_env.py` (`CartpoleEnv` + `CartpoleEnvCfg`) → trained policy
+
+### Why Is It Useful?
+
+Without this script, you would need to manually write boilerplate to launch Isaac Sim, instantiate environments, configure logging, set up multi-GPU training, handle checkpointing, and connect to your RL library—repeating this for every experiment. This script abstracts all of that into a single command: eg. `python train.py --task Isaac-Humanoid-Direct-v0 --num_envs 1024`
 
 ## Run Training
 - run the training script
