@@ -868,3 +868,42 @@ def compute_rewards(
     return total_reward
 ```
 
+# Training with OpenAI Gymnasium
+
+Video: https://www.youtube.com/watch?v=BSQEYj3Wm0Q&list=PLQQ577DOyRN_hY6OAoxBh8K5mKsgyJi-r&index=9
+
+## Register Gym Environments: __init__.py
+- Environment Registry: C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\direct\cartpole\__init__.py
+
+```py
+gym.register(
+    # ID used to create and locate the env
+    id="Isaac-Cartpole-Direct-v0",
+    # Name of the code module
+    entry_point=f"{__name__}.cartpole_env:CartpoleEnv",
+    disable_env_checker=True,
+    # Key Woed arguments: allows you to pass specific configuration parameters to the environment
+    kwargs={
+        # References the python script that configures the env: cartpole_env_cfg: C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\manager_based\classic\cartpole\cartpole_env_cfg.py
+        "env_cfg_entry_point": f"{__name__}.cartpole_env:CartpoleEnvCfg",
+        # RL libraries: for this example we'll be using SKRL
+        "rl_games_cfg_entry_point": f"{agents.__name__}:rl_games_ppo_cfg.yaml",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:CartpolePPORunnerCfg",
+        "skrl_cfg_entry_point": f"{agents.__name__}:skrl_ppo_cfg.yaml",
+        "sb3_cfg_entry_point": f"{agents.__name__}:sb3_ppo_cfg.yaml",
+    },
+)
+```
+
+## SKRL library
+- Uses the PPO algorithm:
+- PPO: config file: C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\direct\cartpole\agents\skrl_ppo_cfg.yaml
+
+## Understanding the Training Script:
+- The training script with the SKRL framework: C:\Users\[YOUR USER]\isaaclab\scripts\reinforcement_learning\skrl\train.py
+
+## Run Training
+- run the training script
+- Open a Terminal inside VS Code and run the command:
+  - For Direct mode: `python scripts\reinforcement_learning\skrl\train.py --task Isaac-Humanoid-Direct-v0 --num_envs 4`
+  - For Managed Mode: 
