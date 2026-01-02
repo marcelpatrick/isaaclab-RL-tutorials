@@ -704,15 +704,33 @@ class CartpoleEnv(DirectRLEnv):
 
 ### 2.2: Define Markov Decision Process settings
 ```py
-    # Prepare actions before physics step - scale action force
+# =============================================================================
+    # _pre_physics_step: Prepares actions before the physics engine runs.
+    # This function scales the raw AI output (typically -1 to 1) into real-world
+    # force values (Newtons). It's called once per AI decision step before physics
+    # simulation runs. Important because it bridges AI decisions to physical forces.
+    # =============================================================================
     def _pre_physics_step(self, actions: torch.Tensor) -> None:
         self.actions = self.action_scale * actions.clone()
 
-    # Set joint effort, specify joint index
+    # =============================================================================
+    # _apply_action: Sends the prepared forces to the cart's motor/joint.
+    # This function actually applies the computed force to move the cart left/right.
+    # It's called every physics step to continuously apply the AI's chosen action.
+    # Essential for translating AI decisions into actual cart movement in simulation.
+    # Defines which joint to apply the force to - by joind_ids which are stored in tensors/arrays containign one type of joint in 
+    # each index: [0] for cart or [1] for pole.
+    # =============================================================================
     def _apply_action(self) -> None:
         self.cartpole.set_joint_effort_target(self.actions, joint_ids=self._cart_dof_idx)
 
-    # Get observations and store them into a dictionary object
+    # =============================================================================
+    # _get_observations: Gathers the current state info the AI needs to make decisions.
+    # Returns 4 values: pole angle, pole angular velocity, cart position, cart velocity.
+    # This is the AI's "eyes" - it can only see these 4 numbers to decide what to do.
+    # Critical because good observations help the AI learn the relationship between
+    # state and optimal actions for balancing the pole.
+    # =============================================================================
     def _get_observations(self) -> dict:
         obs = torch.cat(
             (
@@ -726,7 +744,14 @@ class CartpoleEnv(DirectRLEnv):
         observations = {"policy": obs}
         return observations
 
-    # Compute Total Rewards
+    # =============================================================================
+    # _get_rewards: Reward Function: Calculates how well the AI is doing at each step.
+    # Combines multiple reward components: alive bonus, termination penalty,
+    # pole angle penalty, cart velocity penalty, and pole velocity penalty.
+    # This is the AI's "report card" - it learns by maximizing this reward signal.
+    # The reward function shapes what behavior the AI learns (keep pole upright,
+    # don't move cart too fast, stay smooth).
+    # =============================================================================
     def _get_rewards(self) -> torch.Tensor:
         total_reward = compute_rewards(
             self.cfg.rew_scale_alive,
@@ -742,7 +767,14 @@ class CartpoleEnv(DirectRLEnv):
         )
         return total_reward
 
-    # Defines when each environment should be terminated. Gets completion status of environments
+    # =============================================================================
+    # _get_dones: Determines when an episode should end (success or failure).
+    # Returns two signals: "terminated" (pole fell or cart went too far = failure)
+    # and "time_out" (max episode time reached = neutral ending).
+    # Important because it defines the boundaries of training episodes - the AI
+    # learns that letting the pole fall past 90° or pushing the cart off-limits
+    # ends the episode (bad), while surviving the full time is good.
+    # =============================================================================
     def _get_dones(self) -> tuple[torch.Tensor, torch.Tensor]:
         self.joint_pos = self.cartpole.data.joint_pos
         self.joint_vel = self.cartpole.data.joint_vel
@@ -752,7 +784,15 @@ class CartpoleEnv(DirectRLEnv):
         out_of_bounds = out_of_bounds | torch.any(torch.abs(self.joint_pos[:, self._pole_dof_idx]) > math.pi / 2, dim=1)
         return out_of_bounds, time_out
 
-    # Resets environments and takes objects to their initial position (to random initial positions)
+    # =============================================================================
+    # _reset_idx: Resets specific environments to their starting conditions.
+    # When an episode ends (pole falls or time runs out), this function resets
+    # that environment: puts cart back to center, gives pole a random small angle.
+    # The random initial angle (from initial_pole_angle_range) ensures the AI
+    # learns to balance from various starting positions, not just one pose.
+    # Essential for continuous training - allows failed episodes to restart
+    # immediately while other parallel environments keep running.
+    # =============================================================================
     def _reset_idx(self, env_ids: Sequence[int] | None):
         if env_ids is None:
             env_ids = self.cartpole._ALL_INDICES
