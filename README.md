@@ -602,13 +602,27 @@ from isaaclab.utils.math import sample_uniform
 @configclass
 class CartpoleEnvCfg(DirectRLEnvCfg):
 
-    # Define environment settings
-    # env
-    decimation = 2 # Rendering steps per env step
+# Define environment settings
+    # How many physics steps to skip before the AI makes a new decision.
+    # Physics runs at 120Hz, so decimation=2 means AI decides at 60Hz.
+    # Saves compute while still allowing smooth simulation.
+    decimation = 2
+    # Max time (seconds) for one training episode before auto-reset.
+    # Shorter = faster learning cycles; longer = tests long-term balance.
+    # 5 seconds is enough to see if the pole stays upright.
     episode_length_s = 5.0
+    # Multiplier for AI output to convert it into force (Newtons).
+    # AI outputs small values (-1 to 1), this scales them to real forces.
+    # 100N is strong enough to move the cart quickly.
     action_scale = 100.0  # [N]
-    action_space = 1 # Because here we only have one value for the action output - the force applied to the cartpole
-    observation_space = 4 # Represent cartpole's and pole's position and velocity
+    # Number of actions the AI can take. Here it's 1: push cart left or right.
+    # Single value controls horizontal force on the cart.
+    action_space = 1
+    # Number of values the AI "sees" to make decisions: pole angle, pole speed,
+    # cart position, cart speed. These 4 inputs describe the full system state.
+    observation_space = 4
+    # Extra state info for advanced training (e.g., asymmetric actor-critic).
+    # 0 means we don't use additional privileged information here.
     state_space = 0
 
     # Define simulation settings
