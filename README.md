@@ -867,6 +867,9 @@ def compute_rewards(
     total_reward = rew_alive + rew_termination + rew_pole_pos + rew_cart_vel + rew_pole_vel
     return total_reward
 ```
+## 3. RUN
+
+On the VS Code terminal, input `python scripts\reinforcement_learning\skrl\train.py --task Isaac-Cartpole-Direct-v0` and hit enter.
 
 # Training with OpenAI Gymnasium
 
