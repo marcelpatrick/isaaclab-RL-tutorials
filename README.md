@@ -873,17 +873,34 @@ On the VS Code terminal, input `python scripts\reinforcement_learning\skrl\train
 
 # Training with OpenAI Gymnasium
 
+https://gymnasium.farama.org/index.html 
 Video: https://www.youtube.com/watch?v=BSQEYj3Wm0Q&list=PLQQ577DOyRN_hY6OAoxBh8K5mKsgyJi-r&index=9
+
+- **Gymnasium** is a framework that wraps the code needed to run any environment and provides standard API functions that represent the main actions that this env needs to perform. One your code is registered within Gymnasium, it can be easily accessed from anywhere by using these templated API calls. It Defines a standard "controller interface". eg: every environment must have a reset() function (start a new simulation) and a step() function (take an action, see what happens)
+  - the step() function (standard API function from Gymnasium) calls the sim execution function from the original code, eg "CartpoleEnv()", which runs the sim. 
+- It's a way to wrap your RL code inside a class. The class provides users the ability to start new episodes, take actions and visualize the agent’s current state through standard API functions. 
+- It already comes with multiple standard environments for training robots with RL, but users can register their own envs there.
+
+Some of these main functions are: 
+- Register: `gym.register(id, entry_point, **kwargs)` — add an environment name and how to create it so others can instantiate it by that name.
+- Make: `gym.make(id, **kwargs)` — create an environment instance from a registered name with one call.
+- Reset: `env.reset()` — start or restart an episode and return the initial observation (and info).
+- Step: `env.step(action)` — apply an action, advance the sim, and return (observation, reward, terminated, truncated, info).
+- Close: `env.close()` — release windows/processes/resources used by the environment.
+- Spaces: `env.observation_space / env.action_space` — describe the shape, type and bounds of observations/actions so agents format data correctly.
+- Render: `render()` shows or returns a visual frame of the environment so you can see what the simulator is doing (for debugging, recording, or human viewing).
+- Wrappers: `gym.wrappers.* (e.g., RecordVideo, TimeLimit)` — add recording, time limits, or transforms. Allows users to modify or adapt its interface without changing the original code
 
 ## Register Gym Environments: __init__.py
 - Environment Registry: C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\direct\cartpole\__init__.py
 - It tells the Gymnasium interface which env config class to import: `entry_point=f"{__name__}.cartpole_env:CartpoleEnv"`
 
 ```py
+# Env registration within Gymnasium
 gym.register(
-    # ID used to create and locate the env
+    # ID used to create and locate the env. The "new easier name" for this environment that can be later used to reference and instantiate it.
     id="Isaac-Cartpole-Direct-v0",
-    # Name of the code module
+    # Fetches the path and name of the environment
     entry_point=f"{__name__}.cartpole_env:CartpoleEnv",
     disable_env_checker=True,
     # Key Woed arguments: allows you to pass specific configuration parameters to the environment
@@ -908,10 +925,6 @@ This script is a **unified training entry point** for training reinforcement lea
 **SKRL library**
   - Uses the PPO algorithm:
   - PPO: config file: C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\direct\cartpole\agents\skrl_ppo_cfg.yaml
-
-**Gymnasium** is a standardized API for reinforcement learning environments. It defines two core methods that every environment must implement: `reset()` to initialize an episode and `step(action)` to advance the simulation and return observations, rewards, and status. Because Isaac Lab environments follow this standard, they're compatible with any RL library that supports Gymnasium. Defines a standard "controller interface": every environment must have a reset() function (start a new simulation) and a step() function (take an action, see what happens)
-
-**Wrappers** are code layers that sit around an object to modify or adapt its interface without changing the original code. In this script, `SkrlVecEnvWrapper` translates Isaac Lab's environment interface into the format skrl expects.
 
 **Hydra** is a configuration management framework that loads settings from YAML files and allows command-line overrides (like --num_envs 4). It keeps hyperparameters and environment settings separate from code, making experiments reproducible and easy to modify.
 
