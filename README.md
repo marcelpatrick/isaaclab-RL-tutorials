@@ -562,6 +562,9 @@ if __name__ == "__main__":
     # close sim app
     simulation_app.close()
 ```
+## 2. RUN
+
+in the project root directory `C:\Users\myali\isaaclab>` run `python scripts/reinforcement_learning/skrl/train.py --task Isaac-Cartpole-v0`
 
 # DIRECT WORKFLOW:
 
