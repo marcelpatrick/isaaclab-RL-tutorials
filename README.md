@@ -879,10 +879,18 @@ On the VS Code terminal, input `python scripts\reinforcement_learning\skrl\train
 https://gymnasium.farama.org/index.html 
 Video: https://www.youtube.com/watch?v=BSQEYj3Wm0Q&list=PLQQ577DOyRN_hY6OAoxBh8K5mKsgyJi-r&index=9
 
-- **Gymnasium** is a framework that wraps the code needed to run any environment and provides standard API functions that represent the main actions that this env needs to perform. One your code is registered within Gymnasium, it can be easily accessed from anywhere by using these templated API calls. It Defines a standard "controller interface". eg: every environment must have a reset() function (start a new simulation) and a step() function (take an action, see what happens)
+## Gymnasium
+
+In the world of Reinforcement Learning (RL), you have two distinct sides:
+1. The Environment: The world where the robot lives (Isaac Sim/Isaac Lab). This involves complex physics, friction, lighting, and USD stages.
+2. The Agent: The AI brain (neural network) that wants to control the robot. It doesn't know anything about physics or 3D rendering; it only understands numbers (data inputs and action outputs).
+
+**Gymnasium** is the standard protocol or library that sits in the middle so that any Agent can interact with Environments without needing to know how the physics engine works. It is a framework that wraps the code needed to run any environment and provides standard API functions that represent the main actions that simulations need to perform. 
+
+- Registration: Once your code is registered within Gymnasium, it can be easily accessed from anywhere by using these templated API calls. It defines a standard "controller interface". eg: every environment must have a reset() function (start a new simulation) and a step() function (take an action, see what happens)
   - the step() function (standard API function from Gymnasium) calls the sim execution function from the original code, eg "CartpoleEnv()", which runs the sim. 
 - It's a way to wrap your RL code inside a class. The class provides users the ability to start new episodes, take actions and visualize the agent’s current state through standard API functions. 
-- It already comes with multiple standard environments for training robots with RL, but users can register their own envs there.
+- It already comes with multiple standard environments for training robots with RL, but users can register their own envs.
 
 Some of these main functions are: 
 - Register: `gym.register(id, entry_point, **kwargs)` — add an environment name and how to create it so others can instantiate it by that name.
