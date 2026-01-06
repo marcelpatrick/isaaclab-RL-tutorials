@@ -226,7 +226,18 @@ if __name__ == "__main__":
     simulation_app.close()
 ```
 
+# MANUALLY RUN THE SIMULATION AND MDP FOR TESTING
+
+- Here we will:
+  1. Configure the Environment in the configuration file: `cartpole_env_cfg.py`
+    - It already implements the MDP (Markov Decision Process) classes eg. `class ObservationsCfg`, `class RewardsCfg` but it doesn't yet learn from these rewards or observations. 
+    - This simulation will be later registered in Gymnasium which will plug its observations and rewards to an RL algorithm which will enable learning. (explained down the line).
+    - Nonetheless, this is code already being built to be compatible with the Gymnasium library 
+  2. Execute the simulation manually with an execution script `run_cartpole_rl_env.py` to test if it's working properly
+    - It manually steps the simulation with a while loop
+ 
 # MANAGER WORKFLOW: 
+
 - In the manager approach, standard functions (SceneCfg(), RewardsCfg(), ObservationsCfg(), Event() etc) are each defined inside their own separate classes, inside the ``cartpole_env_cfg.py`` file.
 - Inside a different file ``run_cartpole_rl_env.py`` the class cartpole_env_cfg.py is imported and an object of this class is instantiated in main().
 - Then, an env object is instantiated inheriting from ``ManagerBasedRLEnv()`` that takes the cfg object as param.
@@ -875,7 +886,10 @@ def compute_rewards(
 
 On the VS Code terminal, input `python scripts\reinforcement_learning\skrl\train.py --task Isaac-Cartpole-Direct-v0` and hit enter.
 
-# Training with OpenAI Gymnasium
+# TRAIN: IMPLEMENT REINFORCEMENT LEARNING
+
+- Once we manually executed and tested the environments, now we will plug the observations and rewards from the previously implemented MDP into an RL algorithm for learning
+- For this, we will use the OpenAI Gymnasium library
 
 https://gymnasium.farama.org/index.html 
 Video: https://www.youtube.com/watch?v=BSQEYj3Wm0Q&list=PLQQ577DOyRN_hY6OAoxBh8K5mKsgyJi-r&index=9
