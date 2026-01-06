@@ -123,7 +123,7 @@ class CartpoleSceneCfg(InteractiveSceneCfg):
 - Defines the simulation function 
 - The simulator takes context and entities to be used in the scene (objects: robots, sensors, props etc) as params
   - This makes the run_simulator() function modular. You can later add more objects (entities) to it. The scene then automatically clones these entities across environments and updates them each simulation step.
-- InteractiveScene is a manager that keeps track of all important simulation objects in your environment—robots, props, sensors, etc. 
+- InteractiveScene is a manager that spwnas primitives, keeps track of and manages all important simulation objects in your environment—robots, props, sensors, etc. 
 ```py
 def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
 ```
