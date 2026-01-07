@@ -227,15 +227,17 @@ if __name__ == "__main__":
     simulation_app.close()
 ```
 
-# MANUALLY RUN THE SIMULATION AND MDP FOR TESTING
+# SIMULATION SETUP
 
-- Here we will:
-  1. Configure the Environment in the configuration file: `cartpole_env_cfg.py`
-    - It already implements the MDP (Markov Decision Process) classes eg. `class ObservationsCfg`, `class RewardsCfg` but it doesn't yet learn from these rewards or observations. 
-    - This simulation will be later registered in Gymnasium which will plug its observations and rewards to an RL algorithm which will enable learning. (explained down the line).
-    - Nonetheless, this is code already being built to be compatible with the Gymnasium library 
-  2. Execute the simulation manually with an execution script `run_cartpole_rl_env.py` to test if it's working properly
-    - It manually steps the simulation with a while loop
+The following code does:
+ 1. Builds the environment ("level design") and the robot ("character design")
+ 2. Defines the reward function: Markov Decision Process - MDP ("Game Rules")
+ 3. Define actions robots will perform when the simulation runs, first manually ("player actions")
+
+ 
+At this point, we will only create the simulation but not learn yet. This will be done in the future steps.
+We will also manually run the simulation and MDP for testing, but not yet plug it into the Reinforcement Learning framework.
+This simulation will be later registered in Gymnasium which will plug its observations and rewards to an RL algorithm which will enable learning.
  
 # MANAGER WORKFLOW: 
 Video 2: https://youtu.be/oss4n1NWDKo?si=2UTeFzm0DPNFJnay
@@ -254,10 +256,43 @@ obs, rew, terminated, truncated, info = env.step(joint_efforts)
   - Modularity: easy to remove the reward function or observation type and plug in a different to test how the model behaves. Plug and play different standard functions as standalone components
   - Encapsulation: safer, easier debugging, allows diff developers to work on the code at the same time. 
 
+Steps:
+  1. Configure the Environment in the configuration file: `cartpole_env_cfg.py`
+  2. Execute the simulation manually with an execution script `run_cartpole_rl_env.py` to test if it's working properly
+
+Code Map:
+* file: **`cartpole_env_cfg.py`**: Simulation config file
+    *   **1. Build the Environment:**
+    *   `class CartpoleSceneCfg`:
+        *   spawns the assets (Ground Plane, Dome Light, robot/Cartpole) 
+    *   `class ActionsCfg`:
+        *   Takes the output from the AI algorithm (float) and converts it into robotic movement (Newtons)
+    *   **2. Reward Function: MDP**
+    *   `class ObservationsCfg`
+        *   Measures the new robot state after it has performed an action. Sends it back to the AI. Will become the next input the model will use to learn.
+    *   `class EventCfg`
+        *   Resets robot position after each episode termination (action cycle)
+    *   `class RewardsCfg`
+        *   Calculates the reward function: (+1) for "staying alive" (-2) for termination: pole tilt, high velocities.
+    *   `class TerminationsCfg`
+        *   Defines the "Game Over" conditions. It stops the episode if the `time_out` is reached or if the cart moves out of bounds.
+    *   `class CartpoleEnvCfg`
+        *    bundles all the above configurations (Scene, Observations, Rewards, etc.) into a single object
+
+* file: **`run_cartpole_rl_env.py`** (OPTIONAL)
+    *   **3. Defines Actions:**
+    *   A manual execution script. It loads the configuration and runs the simulation loop with random actions to test the environment physics and logic without a trained AI.
+    *   -> During actual training, actions are performed by the skrl library (`Runner()` function inside `train.py`). And during test/inference, actions are performed by `step()` inside `play.py`)
+    *   `def main()`
+        *   Initializes the simulation app and sets up the environment loop.
+        *   `ManagerBasedRLEnv` (Instance)
+            *   An instance of the standard Isaac Lab environment class. It takes the `CartpoleEnvCfg` defined above and builds the simulation in memory.
+        *   `Simulation Loop (while loop)`
+            *   Manually iterates through simulation steps. Because no AI is connected yet, it uses `torch.randn_like` to generate random actions (forces), steps the physics engine, and resets the environment when `terminated` returns True.
+
 
 ## CONFIGURATION SETUP: cartpole_env_cfg.py
 - C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\manager_based\classic\cartpole\cartpole_env_cfg.py
-
 
 ## 0.Import Libraries
 
