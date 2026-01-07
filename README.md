@@ -282,7 +282,7 @@ Code Map:
 * file: **`run_cartpole_rl_env.py`** (OPTIONAL)
     *   **3. Defines Actions:**
     *   A manual execution script. It loads the configuration and runs the simulation loop with random actions to test the environment physics and logic without a trained AI.
-    *   -> During actual training, actions are performed by the skrl library (`Runner()` function inside `train.py`). And during test/inference, actions are performed by `step()` inside `play.py`)
+    *   -> During actual training, actions are performed by the skrl library (`Runner()` - runs the loop, inside `train.py` and `step(action)` - performs the actions).
     *   `def main()`
         *   Initializes the simulation app and sets up the environment loop.
         *   `ManagerBasedRLEnv` (Instance)
