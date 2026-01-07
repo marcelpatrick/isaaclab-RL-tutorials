@@ -238,6 +238,7 @@ if __name__ == "__main__":
     - It manually steps the simulation with a while loop
  
 # MANAGER WORKFLOW: 
+Video 2: https://youtu.be/oss4n1NWDKo?si=2UTeFzm0DPNFJnay
 
 - In the manager approach, standard functions (SceneCfg(), RewardsCfg(), ObservationsCfg(), Event() etc) are each defined inside their own separate classes, inside the ``cartpole_env_cfg.py`` file.
 - Inside a different file ``run_cartpole_rl_env.py`` the class cartpole_env_cfg.py is imported and an object of this class is instantiated in main().
@@ -580,6 +581,7 @@ if __name__ == "__main__":
 in the project root directory `C:\Users\myali\isaaclab>` run `python scripts/reinforcement_learning/skrl/train.py --task Isaac-Cartpole-v0`
 
 # DIRECT WORKFLOW:
+Video 3: https://youtu.be/gdIJ_FcYXvM?si=KMOYvOfCW7muxLF2
 
 - Defines all standard functions (observation, rewards, termination) inside the same script ``cartpole_env.py``
 
@@ -888,6 +890,7 @@ def compute_rewards(
 On the VS Code terminal, input `python scripts\reinforcement_learning\skrl\train.py --task Isaac-Cartpole-Direct-v0` and hit enter.
 
 # TRAIN: IMPLEMENT REINFORCEMENT LEARNING
+Video 4: https://youtu.be/BSQEYj3Wm0Q?si=BCT3XfuwEVRBhEDr
 
 - Once we manually executed and tested the environments, now we will plug the observations and rewards from the previously implemented MDP into an RL algorithm for learning
 - For this, we will use the OpenAI Gymnasium library
