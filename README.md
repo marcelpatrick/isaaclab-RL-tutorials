@@ -41,6 +41,7 @@
 - Calls run_simulator() passing the scene_cfg() object as a param - that's when the director calls "action", when all pieces are in place, and the scene actually runs. 
 
 # tutorials\02_scene: create_scene.py
+Video 1: https://youtu.be/Y-K1cAvnSFI?si=3pq8CU0TxsP-OB7r
 
 ## 0. Argparser and AppLaunch()
 
