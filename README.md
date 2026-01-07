@@ -900,10 +900,14 @@ Video: https://www.youtube.com/watch?v=BSQEYj3Wm0Q&list=PLQQ577DOyRN_hY6OAoxBh8K
 
 To run the training we need to: 
 1. Select the environment we need to train
-  2. adfadfadfa
-3. Select algorithm we want to use to train
-4. Specify the number of envs we want to train
-5. 
+  2. asdfasdf
+  3.  
+4. adfadfadfa
+5. Select algorithm we want to use to train
+6. Specify the number of envs we want to train
+7. 
+
+
 
 ## Gymnasium
 
