@@ -898,16 +898,11 @@ Video 4: https://youtu.be/BSQEYj3Wm0Q?si=BCT3XfuwEVRBhEDr
 https://gymnasium.farama.org/index.html 
 Video: https://www.youtube.com/watch?v=BSQEYj3Wm0Q&list=PLQQ577DOyRN_hY6OAoxBh8K5mKsgyJi-r&index=9
 
-To run the training we need to: 
-1. Select the environment we need to train
-  2. asdfasdf
-  3.  
-4. adfadfadfa
-5. Select algorithm we want to use to train
-6. Specify the number of envs we want to train
-7. 
-
-
+To run the training, we need to: 
+- 1. Select the environment we need to train: `_init_.py` > `gym.register(id="[NAME OF THE ENVIRONMENT")`
+- 2. Select the algorithm we want to use: `_init_.py` > `kwargs={[TYPE OF ALGORITHM]}`
+- 3. Specify the number of envs we want to train: In the VScode terminal: `--num_envs x`
+- 4. Run the command (eg for managed based env): `python scripts\reinforcement_learning\skrl\train.py --task Isaac-Velocity-Rough-Anymal-C-v0 num_env 4`
 
 ## Gymnasium
 
