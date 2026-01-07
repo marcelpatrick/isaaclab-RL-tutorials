@@ -898,6 +898,13 @@ Video 4: https://youtu.be/BSQEYj3Wm0Q?si=BCT3XfuwEVRBhEDr
 https://gymnasium.farama.org/index.html 
 Video: https://www.youtube.com/watch?v=BSQEYj3Wm0Q&list=PLQQ577DOyRN_hY6OAoxBh8K5mKsgyJi-r&index=9
 
+To run the training we need to: 
+1. Select the environment we need to train
+  2. 
+3. Select algorithm we want to use to train
+4. Specify the number of envs we want to train
+5. 
+
 ## Gymnasium
 
 In the world of Reinforcement Learning (RL), you have two distinct sides:
