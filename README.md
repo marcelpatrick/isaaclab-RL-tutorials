@@ -1333,4 +1333,165 @@ Run the training script that uses Gymnasium
 
 - You can select any other environment from the Nvidia list of available environments `https://isaac-sim.github.io/IsaacLab/main/source/overview/environments.html` and run them (manager/direct)
   - Some might not work if they are not implemented in this project `isaaclab`
-  - Make sure you use the algorithm that the selected simulation supports: skrl, rl_games etc. 
+  - Make sure you use the algorithm that the selected simulation supports: skrl, rl_games etc.
+ 
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ COMMAND: python train.py --task Isaac-Cartpole-v0 │
+└─────────────────────────────────────────┬───────────────────────────────────────────────────────────────────┘
+│
+▼
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ FILE: c:\Users[USER]\isaaclab\scripts\reinforcement_learning\rl_games\train.py │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ WHAT: Training script entry point. Parses CLI args, creates env, wraps it, runs RL-Games training loop │
+│ │
+│ KEY FUNCTIONS/CLASSES: │
+│ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐ │
+│ │ main(env_cfg, agent_cfg) [line 87] │ │
+│ │ DOES: Orchestrates entire training pipeline │ │
+│ │ │ │
+│ │ Line 181: env = gym.make(args_cli.task, cfg=env_cfg) ──────────────────────────────────────────┐ │ │
+│ │ ↑ Calls Gymnasium to create env from task ID "Isaac-Cartpole-v0" │ │ │
+│ │ │ │ │
+│ │ Line 199: env = RlGamesVecEnvWrapper(env, rl_device, clip_obs, clip_actions, ...) │ │ │
+│ │ ↑ Wraps gym.Env → RL-Games IVecEnv interface (clips actions/obs, remaps dict keys) │ │ │
+│ │ │ │ │
+│ │ Line 202-204: vecenv.register(...) + env_configurations.register("rlgpu", ...) │ │ │
+│ │ ↑ Registers wrapped env with RL-Games internal registry │ │ │
+│ │ │ │ │
+│ │ Line 213: runner = Runner(IsaacAlgoObserver()) │ │ │
+│ │ ↑ Creates RL-Games training runner │ │ │
+│ │ │ │ │
+│ │ Line 215: runner.load(agent_cfg) │ │ │
+│ │ ↑ Loads PPO algorithm config │ │ │
+│ │ │ │ │
+│ │ Line 240: runner.run({"train": True}) │ │ │
+│ │ ↑ Starts training loop: obs→policy→action→env.step()→reward→update │ │ │
+│ └─────────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+│ │ │
+│ IMPORTS USED: │ │
+│ • gymnasium (gym.make) │ │
+│ • RlGamesVecEnvWrapper (wrapper class) │ │
+│ • Runner (RL-Games training loop) │ │
+│ • isaaclab_tasks (triggers task registration on import) │ │
+└───────────────────────────────────────────────────────────────────────────────────────────────────┼─────────┘
+│
+gym.make("Isaac-Cartpole-v0") triggers Gymnasium registry lookup │
+════════════════════════════════════════════════════════════════ │
+▼
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ FILE: c:\Users[USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\manager_based\classic\cartpole\ │
+│ __init__.py │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ WHAT: Task registration file. Maps "Isaac-Cartpole-v0" string to environment class + config │
+│ │
+│ KEY FUNCTIONS/CLASSES: │
+│ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐ │
+│ │ gym.register(...) [line 18-29] │ │
+│ │ DOES: Registers task with Gymnasium's global registry at import time │ │
+│ │ │ │
+│ │ gym.register( │ │
+│ │ id="Isaac-Cartpole-v0", ← Task ID used in CLI --task argument │ │
+│ │ entry_point="isaaclab.envs:ManagerBasedRLEnv", ← Class to instantiate (the RL environment) │ │
+│ │ kwargs={ │ │
+│ │ "env_cfg_entry_point": "...cartpole_env_cfg:CartpoleEnvCfg", ← Links to config class ────┐ │ │
+│ │ "rl_games_cfg_entry_point": "...:rl_games_ppo_cfg.yaml", ← Agent config for RL-Games │ │ │
+│ │ } │ │ │
+│ │ ) │ │ │
+│ └──────────────────────────────────────────────────────────────────────────────────────────────────────┼───┘ │
+│ │ │
+│ ENTRY POINT EXPLAINED: │ │
+│ • "isaaclab.envs:ManagerBasedRLEnv" means: from module isaaclab.envs, import class ManagerBasedRLEnv │ │
+│ • gym.make() parses this string, imports the class, and instantiates it with CartpoleEnvCfg │ │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┼─────┘
+│
+env_cfg_entry_point loads configuration class │
+═════════════════════════════════════════════ │
+▼
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ FILE: c:\Users[USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\manager_based\classic\cartpole\ │
+│ cartpole_env_cfg.py │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ WHAT: Complete MDP definition. Configures scene (robot), observations, actions, rewards, terminations │
+│ │
+│ KEY CLASSES: │
+│ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐ │
+│ │ class CartpoleSceneCfg(InteractiveSceneCfg) [line 33] │ │
+│ │ DOES: Defines what exists in the simulation world │ │
+│ │ • ground: GroundPlaneCfg │ │
+│ │ • robot: CARTPOLE_CFG (imported from isaaclab_assets) ← The actual robot USD + actuators │ │
+│ │ • dome_light: DomeLightCfg │ │
+│ └─────────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐ │
+│ │ class ActionsCfg [line 55] │ │
+│ │ DOES: Maps NN output → robot joint commands │ │
+│ │ • joint_effort = JointEffortActionCfg(asset_name="robot", joint_names=["slider_to_cart"], scale=100) │ │
+│ │ ↑ Single scalar action controls cart with effort (force) command, scaled by 100 │ │
+│ └─────────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐ │
+│ │ class ObservationsCfg [line 62] │ │
+│ │ DOES: Defines what the policy "sees" │ │
+│ │ • joint_pos_rel: cart position + pole angle (relative to default) │ │
+│ │ • joint_vel_rel: cart velocity + pole angular velocity │ │
+│ │ → Concatenated: obs = [cart_pos, pole_angle, cart_vel, pole_ang_vel] shape [num_envs, 4] │ │
+│ └─────────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐ │
+│ │ class RewardsCfg [line 103] │ │
+│ │ DOES: Defines reward signal (what behavior to encourage) │ │
+│ │ • alive: +1.0 (reward for not falling) │ │
+│ │ • terminating: -2.0 (penalty when episode ends early) │ │
+│ │ • pole_pos: -1.0 × |pole_angle - 0| (penalize pole deviation from upright) │ │
+│ │ • cart_vel: -0.01 × |cart_velocity| (discourage fast cart movement) │ │
+│ │ • pole_vel: -0.005 × |pole_angular_velocity| (discourage pole wobble) │ │
+│ └─────────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐ │
+│ │ class TerminationsCfg [line 128] │ │
+│ │ DOES: Defines when episode ends │ │
+│ │ • time_out: episode_length >= max_length (truncated, not failure) │ │
+│ │ • cart_out_of_bounds: |cart_position| > 3.0 (terminated, failure) │ │
+│ └─────────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐ │
+│ │ class EventCfg [line 80] │ │
+│ │ DOES: Randomization on reset (domain randomization) │ │
+│ │ • reset_cart_position: randomize cart in [-1.0, 1.0] with velocity [-0.5, 0.5] │ │
+│ │ • reset_pole_position: randomize pole angle in [-0.25π, 0.25π] │ │
+│ └─────────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐ │
+│ │ class CartpoleEnvCfg(ManagerBasedRLEnvCfg) [line 139] │ │
+│ │ DOES: Top-level config combining all above │ │
+│ │ • scene = CartpoleSceneCfg(num_envs=4096) │ │
+│ │ • observations = ObservationsCfg() │ │
+│ │ • actions = ActionsCfg() │ │
+│ │ • rewards = RewardsCfg() │ │
+│ │ • terminations = TerminationsCfg() │ │
+│ │ • events = EventCfg() │ │
+│ └─────────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+train.py __init__.py cartpole_env_cfg.py
+════════ ═══════════ ═══════════════════
+│ │ │
+│ 1. import isaaclab_tasks │ │
+│ ─────────────────────────► │ │
+│ executes gym.register() │
+│ │ │
+│ 2. gym.make("Isaac-Cartpole-v0") │ │
+│ ─────────────────────────► │ │
+│ looks up entry_point │
+│ + env_cfg_entry_point │
+│ │ │
+│ │ 3. imports CartpoleEnvCfg │
+│ │ ─────────────────────────────► │
+│ │ returns config
+│ │ ◄───────────────────────────── │
+│ │ │
+│ 4. ManagerBasedRLEnv(cfg=CartpoleEnvCfg) │
+│ ◄──────────────────────── │ │
+│ │
+│ 5. RlGamesVecEnvWrapper(env) │
+│ wraps env for RL-Games │
+│ │
+│ 6. runner.run() → training loop │
+│ calls env.step() repeatedly │
+▼ │
+TRAINING │
