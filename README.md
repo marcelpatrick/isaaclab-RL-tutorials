@@ -524,7 +524,7 @@ class CartpoleEnvCfg(ManagerBasedRLEnvCfg):
         self.sim.render_interval = self.decimation
 ```
 
-## RUNNING THE SCRIPT: run_cartpole_rl_env.py
+## RUNNING THE MANUAL SCRIPT: run_cartpole_rl_env.py
 - ``C:\Users\[YOUR USER]\isaaclab\scripts\tutorials\03_envs\run_cartpole_rl_env.py``
 
 ## 0. Argparser and AppLauncher
@@ -1317,10 +1317,20 @@ if __name__ == "__main__":
 ```
 
 ## Run Training
-- run the training script
+Run the training script that uses Gymnasium
+
 - Open a Terminal inside VS Code and run the command:
+  - For Direct mode: `python scripts\reinforcement_learning\rl_games\train.py --task Isaac-Cartpole-Direct-v0`
+  - For Manager mode: `python scripts\reinforcement_learning\rl_games\train.py --task Isaac-Cartpole-v0`
+    
+- You can also specify the number of envs you want the simulation to run with `--num_envs X`
+  - For Direct mode: `python scripts\reinforcement_learning\rl_games\train.py --task Isaac-Cartpole-Direct-v0 --num_envs 4`
+  - For Manager mode: `python scripts\reinforcement_learning\rl_games\train.py --task Isaac-Cartpole-v0 --num_envs 4`
+    
+- You can also run different envs that are supported by this project, eg:
   - For Direct mode: `python scripts\reinforcement_learning\skrl\train.py --task Isaac-Humanoid-Direct-v0 --num_envs 4`
   - For Manager mode: `python scripts\reinforcement_learning\skrl\train.py --task Isaac-Velocity-Rough-Anymal-C-v0 --num_envs 4`
 
 - You can select any other environment from the Nvidia list of available environments `https://isaac-sim.github.io/IsaacLab/main/source/overview/environments.html` and run them (manager/direct)
   - Some might not work if they are not implemented in this project `isaaclab`
+  - Make sure you use the algorithm that the selected simulation supports: skrl, rl_games etc. 
