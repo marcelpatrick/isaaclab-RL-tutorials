@@ -1320,4 +1320,4 @@ if __name__ == "__main__":
 - run the training script
 - Open a Terminal inside VS Code and run the command:
   - For Direct mode: `python scripts\reinforcement_learning\skrl\train.py --task Isaac-Humanoid-Direct-v0 --num_envs 4`
-  - For Manager mode: `python scripts\reinforcement_learning\skrl\train.py --task Isaac-Velocity-Rough-Anymal-C-v0 num_env 4`
+  - For Manager mode: `python scripts\reinforcement_learning\skrl\train.py --task Isaac-Velocity-Rough-Anymal-C-v0 num_envs 4`
