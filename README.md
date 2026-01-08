@@ -1323,3 +1323,4 @@ if __name__ == "__main__":
   - For Manager mode: `python scripts\reinforcement_learning\skrl\train.py --task Isaac-Velocity-Rough-Anymal-C-v0 --num_envs 4`
 
 - You can select any other environment from the Nvidia list of available environments `https://isaac-sim.github.io/IsaacLab/main/source/overview/environments.html` and run them (manager/direct)
+  - Some might not work if they are not implemented in this project `isaaclab`
