@@ -1322,4 +1322,4 @@ if __name__ == "__main__":
   - For Direct mode: `python scripts\reinforcement_learning\skrl\train.py --task Isaac-Humanoid-Direct-v0 --num_envs 4`
   - For Manager mode: `python scripts\reinforcement_learning\skrl\train.py --task Isaac-Velocity-Rough-Anymal-C-v0 --num_envs 4`
 
-- Nvidia list of available environments: `https://isaac-sim.github.io/IsaacLab/main/source/overview/environments.html`
+- You can select any other environment from the Nvidia list of available environments `https://isaac-sim.github.io/IsaacLab/main/source/overview/environments.html` and run them (manager/direct)
