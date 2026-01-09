@@ -262,33 +262,21 @@ Steps:
 
 Code Map:
 * file: **`cartpole_env_cfg.py`**: Simulation config file
+  
     *   **1. Build the Environment:**
-    *   `class CartpoleSceneCfg`:
-        *   spawns the assets (Ground Plane, Dome Light, robot/Cartpole) 
-    *   `class ActionsCfg`:
-        *   Takes the output from the AI algorithm (float) and converts it into robotic movement (Newtons)
+    *   `class CartpoleSceneCfg`: Spawns the assets (Ground Plane, Dome Light, robot/Cartpole) 
+
     *   **2. Reward Function: MDP**
-    *   `class ObservationsCfg`
-        *   Measures the new robot state after it has performed an action. Sends it back to the AI. Will become the next input the model will use to learn.
-    *   `class EventCfg`
-        *   Resets robot position after each episode termination (action cycle)
-    *   `class RewardsCfg`
-        *   Calculates the reward function: (+1) for "staying alive" (-2) for termination: pole tilt, high velocities.
-    *   `class TerminationsCfg`
-        *   Defines the "Game Over" conditions. It stops the episode if the `time_out` is reached or if the cart moves out of bounds.
-    *   `class CartpoleEnvCfg`
-        *    bundles all the above configurations (Scene, Observations, Rewards, etc.) into a single object
+    *   `class CartpoleEnvCfg`: Bundles all the below configurations (Scene, Observations, Rewards, etc.) into a single object
+      *   `class ObservationsCfg`: Measures the new robot state after it has performed an action. Sends it back to the AI. Will become the next input the model will use to learn.
+      *   `class EventCfg`: Resets robot position after each episode termination (action cycle)
+      *   `class RewardsCfg`: Calculates the reward function: (+1) for "staying alive" (-2) for termination: pole tilt, high velocities.
+      *   `class TerminationsCfg`: Defines the "Game Over" conditions. It stops the episode if the `time_out` is reached or if the cart moves out of bounds.
+
 
 * file: **`run_cartpole_rl_env.py`** (OPTIONAL)
-    *   **3. Defines Actions:**
-    *   A manual execution script. It loads the configuration and runs the simulation loop with random actions to test the environment physics and logic without a trained AI.
-    *   -> During actual training, actions are performed by the skrl library (`Runner()` - runs the loop, inside `train.py` and `step(action)` - performs the actions).
-    *   `def main()`
-        *   Initializes the simulation app and sets up the environment loop.
-        *   `ManagerBasedRLEnv` (Instance)
-            *   An instance of the standard Isaac Lab environment class. It takes the `CartpoleEnvCfg` defined above and builds the simulation in memory.
-        *   `Simulation Loop (while loop)`
-            *   Manually iterates through simulation steps. Because no AI is connected yet, it uses `torch.randn_like` to generate random actions (forces), steps the physics engine, and resets the environment when `terminated` returns True.
+    *   **3. Defines Actions:**: A manual execution script. It loads the configuration and runs the simulation loop with random actions to test the environment physics and logic without a trained AI. -> During actual training, actions are performed by the skrl library (`Runner()` - runs the loop, inside `train.py` and `step(action)` - performs the actions).
+        *   `Simulation Loop (while loop)`: Manually iterates through simulation steps. Because no AI is connected yet, it uses `torch.randn_like` to generate random actions (forces), steps the physics engine, and resets the environment when `terminated` returns True.
 
 
 ## CONFIGURATION SETUP: cartpole_env_cfg.py
@@ -962,9 +950,13 @@ Some of these main functions are:
 - Render: `render()` shows or returns a visual frame of the environment so you can see what the simulator is doing (for debugging, recording, or human viewing).
 - Wrappers: `gym.wrappers.* (e.g., RecordVideo, TimeLimit)` — add recording, time limits, or transforms. Allows users to modify or adapt its interface without changing the original code
 
-## Register Gym Environments: __init__.py
-- Environment Registry: C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\direct\cartpole\__init__.py
-- It tells the Gymnasium interface which env config class to import: `entry_point=f"{__name__}.cartpole_env:CartpoleEnv"`
+## Register Gym Environments: `__init__.py`
+- `_init_.py` converts the Python folders in this project into a package.
+  - This makes it easier for users to import functions implemented by the code in this folder and provides callable public APIs.
+  - It's used to import the `CartpoleEnvCfg` class, which is used to generate the env config object
+- It also registers this project into Gymnasium.
+  - Environment Registry: C:\Users\[YOUR USER]\isaaclab\source\isaaclab_tasks\isaaclab_tasks\direct\cartpole\__init__.py
+  - It tells the Gymnasium interface which env config class to import: `entry_point=f"{__name__}.cartpole_env:CartpoleEnv"`
 
 ```py
 # Env registration within Gymnasium
