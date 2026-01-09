@@ -309,9 +309,8 @@ from isaaclab_assets.robots.cartpole import CARTPOLE_CFG  # isort:skip
 
 ## 1. Scene Design and Configuration: CartpoleSceneCfg()
 
-- Objects (entities) configuration
-- Configures Ground, Lights and the Cartpolt
-- **CARTPOLE_CFG**: the instance of the predefined cart-pole configuration object (``from isaaclab_assets.robots.cartpole import CARTPOLE_CFG``) that defines the robot's basic attributes (joints, links, limits, physics).
+- Objects (entities) configuration of: Ground, Lights and the Cartpole
+- **CARTPOLE_CFG**: the instance of the predefined cartpole configuration object (``from isaaclab_assets.robots.cartpole import CARTPOLE_CFG``) that defines the robot's basic attributes (joints, links, limits, physics).
 
 ```py
 ##
@@ -347,6 +346,12 @@ class CartpoleSceneCfg(InteractiveSceneCfg):
 - Specifies how the raw RL action output (a number from the policy) is converted into a physical force/effort applied to the chosen joint. eg: So the policy outputs, for example, 0.3, and the action definition turns that into: 0.3 × scale (100) = 30 units of joint effort applied to the slider_to_cart joint
 
 ```py
+
+##
+# MDP settings
+##
+
+
 @configclass
 class ActionsCfg:
     """Action specifications for the MDP."""
@@ -469,7 +474,21 @@ class RewardsCfg:
 - These termination conditions tell the RL system when to reset and start a new episode.
 - **Episode**:
   - An Episode is a sequence of interactions between the agent and the environment. When the agent finishes its "mission" the key sequence of actions it was predefined to perform in order to learn.
-  - After each Episode, the accumulated rewards are calculated and the result is used to train the algorithm -> back-propagation. 
+  - After each Episode, the accumulated rewards are calculated and the result is used to train the algorithm -> back-propagation.
+ 
+```py
+@configclass
+class TerminationsCfg:
+    """Termination terms for the MDP."""
+
+    # (1) Time out
+    time_out = DoneTerm(func=mdp.time_out, time_out=True)
+    # (2) Cart out of bounds
+    cart_out_of_bounds = DoneTerm(
+        func=mdp.joint_pos_out_of_manual_limit,
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=["slider_to_cart"]), "bounds": (-3.0, 3.0)},
+    )
+```
 
 <img width="1753" height="589" alt="image" src="https://github.com/user-attachments/assets/434ddbb8-6f89-4dd1-b176-87651410e2fa" />
 
